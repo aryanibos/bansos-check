@@ -14,6 +14,7 @@ The project follows Semantic Versioning.
 ### Added
 
 - `LICENSE` (MIT), `CONTRIBUTING.md`, `.gitignore`, and `.gitattributes`.
+- Expanded security coverage in the skill: threat model (credentials/sessions, machine access, wallet drainers, API keys, fees), ClickFix paste-instruction pattern, wallet signature/approval drainer mechanics, APK sideloading and out-of-store extension risks, QR-code and support-DM funnels, red-flag quick list, an explicit verdict rubric, and a full incident-mode containment checklist (session/OAuth revocation, wallet approval revocation, persistence checks, mailbox-rule traps).
 
 ## [0.1.0] - 2026-11-07
 
