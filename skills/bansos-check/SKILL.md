@@ -30,16 +30,18 @@ Every check below exists to find which payload an offer is carrying.
 1. **Get the real destination.** Follow the link read-only (`browser.open`). Resolve URL shorteners and redirect chains to the final domain, and note suspicious hops. Treat aggregators (link-in-bio pages, Telegram instant-view mirrors) and **QR codes** as opaque until resolved to a final domain. If the source post is unreadable (e.g. Telegram content protection, no connector), ask the user for the destination domain and what the post asks them to do — that plus the destination page is usually enough.
 2. **Identity check.** Is the final domain the OFFICIAL domain of the brand being invoked (e.g. `anthropic.com`, `claude.ai`)? Red flags:
    - Typosquatting: swapped/added letters, hyphens, or the brand glued to keywords (`claude-free-credits.com`, `anthropic-airdrop.xyz`).
-   - The real brand as a *subdomain* of a stranger's domain (`anthropic.com.evil-site.xyz`).
-   - Punycode/IDN lookalikes, wrong or exotic TLDs for the brand, `http://` (no TLS).
+   - The real brand as a *subdomain* of a stranger's domain (`anthropic.com.evil-site.xyz`), or as the *userinfo* part of a URL (`https://anthropic.com@evil-site.xyz` — everything before the `@` is decoration; the real host comes after it).
+   - Punycode/IDN homoglyph lookalikes, wrong or exotic TLDs for the brand, `http://` (no TLS).
    - A domain with no history that no official channel links to.
 3. **Mechanism check — what are you asked to DO?** This decides most verdicts:
    - Run a terminal command, especially pipe-to-shell (`irm ... | iex`, `curl ... | sh`, `bash <(...)`) → **JANGAN, automatic.** It is blind remote code execution on the user's machine. Variants: PowerShell one-liners, `mshta`/`certutil` download cradles, base64-obfuscated commands.
    - **ClickFix pattern:** a page (often a fake CAPTCHA or "verify you are human") instructing the user to press Win+R / open a terminal and paste something → **JANGAN, automatic.** This is a documented malware-delivery technique.
-   - Download/install an unknown app, "helper", or agent — especially one advertising computer control / remote access → **JANGAN** on any machine holding real accounts. Isolated throwaway VM is the only acceptable test bed.
+   - Download/install an unknown app, "helper", or agent — especially one advertising computer control / remote access → **JANGAN** on any machine holding real accounts. Isolated throwaway VM is the only acceptable test bed. Same verdict for fake "browser update" prompts and fake meeting/utility apps a stranger sends "to help you claim".
    - Sideload a mobile **APK** (outside the Play Store) or enable developer mode to claim → **JANGAN.** Same for browser extensions offered outside the official web store.
    - Log in with Google/Apple/etc. on a page that is not the official domain (beware browser-in-the-browser fake windows) → **JANGAN.** Credential theft pattern (documented in fake "Claude Max giveaway" campaigns, Malwarebytes, Sep 2026).
-   - Connect a crypto wallet, sign a message, or approve a token spend (including `setApprovalForAll` / unlimited approvals) → **JANGAN.** "Connect to check eligibility" is the drainer funnel; the draining step is a signature that looks harmless.
+   - **OAuth consent phishing:** even on the REAL provider domain, a "claim with Google/Microsoft" screen asking for broad permissions (read your email, access your files, send mail as you) for a giveaway → **JANGAN.** The consent grant itself is the theft.
+   - Scan a **login/session QR code** (Discord, Telegram, WhatsApp, wallet apps) presented by an offer page, bot, or "verification" site → **JANGAN.** Scanning authorizes the attacker's session, not yours. Same for Telegram bots asking you to share your phone number/contact to "verify eligibility".
+   - Connect a crypto wallet, sign a message, or approve a token spend (including `setApprovalForAll` / unlimited approvals, gas-less Permit/Permit2 signatures, and blind signing on a hardware wallet) → **JANGAN.** "Connect to check eligibility" is the drainer funnel; the draining step is a signature that looks harmless.
    - Enter an API key, seed phrase, recovery phrase, or 2FA code → **JANGAN.** No legitimate giveaway needs any of these, ever.
    - Pay an "activation/unlock fee", or top up "gas" to release a prize/airdrop → **JANGAN.** Free things do not charge.
    - Download an archive/document that asks to enable macros, or files like `.lnk`, `.scr`, `.iso`, `.dmg` from the offer page → **JANGAN.**
@@ -85,7 +87,7 @@ If the user clicked, logged in, installed, signed, or paid *before* the check, s
 3. **Revoke exposed keys:** rotate any API keys entered or stored on the machine; for wallets, revoke token approvals (e.g. via revoke.cash) and move funds to a fresh wallet if a seed phrase or a malicious signature was given — a compromised seed means the wallet is permanently unsafe.
 4. **Remove the payload:** uninstall the software, and check persistence spots — startup items, scheduled tasks/cron, browser extensions, and recently added profiles/certificates on mobile.
 5. **Check email-account traps:** mailbox forwarding rules and filters (attackers add auto-forward/delete rules), recovery email/phone changes.
-6. **Turn on 2FA / passkeys** where missing, and review recent activity (logins, sent mail, transactions) for the affected accounts.
+6. **Turn on 2FA / passkeys** where missing, review recent activity (logins, sent mail, transactions) for the affected accounts, and **warn the user's contacts** — a taken-over account is typically used to spam the same lure to them.
 7. **Report** the post/account to the platform and, for financial loss, to the bank/provider immediately — speed matters for reversals.
 
 ## Notes
